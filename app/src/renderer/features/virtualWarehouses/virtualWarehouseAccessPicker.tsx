@@ -33,9 +33,8 @@ const VirtualWarehouseAccessPicker: FunctionComponent<Props> = ({
   state
 }) => {
   const dispatch = useAppDispatch()
-
   const theme = useTheme()
-
+  
   const setState = (newState: VirtualWarehouseAccessLevel | null) => {
     dispatch(setVirtualWarehouseAccess({
       name: virtualWarehouseName,
@@ -44,8 +43,16 @@ const VirtualWarehouseAccessPicker: FunctionComponent<Props> = ({
       environment: environmentName
     }))
   }
-
-  const handleClick = () => {
+  
+  const handleClick = (event: React.MouseEvent) => {
+    // Check if Shift key is pressed
+    if (event.shiftKey) {
+      // Set to null regardless of current state when Shift+Click
+      setState(null)
+      return
+    }
+    
+    // Normal click behavior
     if (state === VirtualWarehouseAccessLevel.Full) {
       setState(null)
     } else if (state === undefined) {
@@ -54,7 +61,7 @@ const VirtualWarehouseAccessPicker: FunctionComponent<Props> = ({
       setState(state + 1)
     }
   }
-
+  
   const cell = (text?: string, color?: string) => {
     if (text) {
       return (
@@ -70,13 +77,12 @@ const VirtualWarehouseAccessPicker: FunctionComponent<Props> = ({
       )
     }
   }
-
+  
   switch (state) {
   case undefined:
     return cell()
   case VirtualWarehouseAccessLevel.Usage:
     return cell('Usage', theme.palette.success.main)
-
   case VirtualWarehouseAccessLevel.UsageMonitor:
     return cell('Usage + Monitor', theme.palette.secondary.main)
   case VirtualWarehouseAccessLevel.Full:

@@ -28,7 +28,6 @@ const TableCell = styled(UnstyledTableCell)(({theme}) => ({
   },
 }))
 
-
 const SchemaDataAccessPicker: FunctionComponent<Props> = ({
   databaseName,
   schemaName,
@@ -39,7 +38,7 @@ const SchemaDataAccessPicker: FunctionComponent<Props> = ({
 }) => {
   const dispatch = useAppDispatch()
   const theme = useTheme()
-
+  
   const setState = (newState: DataAccessLevel | null) => {
     dispatch(setSchemaAccess({
       database: databaseName,
@@ -49,8 +48,16 @@ const SchemaDataAccessPicker: FunctionComponent<Props> = ({
       environment: environmentName
     }))
   }
-
-  const handleClick = () => {
+  
+  const handleClick = (event: React.MouseEvent) => {
+    // Check if Shift key is pressed
+    if (event.shiftKey) {
+      // Set to null regardless of current state when Shift+Click
+      setState(null)
+      return
+    }
+    
+    // Normal click behavior
     if (state === DataAccessLevel.Full) {
       setState(null)
     } else if (state === undefined) {
@@ -59,11 +66,11 @@ const SchemaDataAccessPicker: FunctionComponent<Props> = ({
       setState(state + 1)
     }
   }
-
+  
   const grayedOut = useMemo(() => {
     return databaseState !== null && databaseState !== undefined && state !== null && state !== undefined && state <= databaseState
   }, [state, databaseState])
-
+  
   switch (state) {
   case undefined:
     return (

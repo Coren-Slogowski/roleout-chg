@@ -26,7 +26,6 @@ const TableCell = styled(UnstyledTableCell)(({theme}) => ({
   },
 }))
 
-
 const DatabaseDataAccessPicker: FunctionComponent<Props> = ({
   databaseName,
   functionalRoleName,
@@ -35,7 +34,7 @@ const DatabaseDataAccessPicker: FunctionComponent<Props> = ({
 }) => {
   const dispatch = useAppDispatch()
   const theme = useTheme()
-
+  
   const setState = (newState: DataAccessLevel | null) => {
     dispatch(setDatabaseAccess({
       database: databaseName,
@@ -44,8 +43,16 @@ const DatabaseDataAccessPicker: FunctionComponent<Props> = ({
       environment: environmentName
     }))
   }
-
-  const handleClick = () => {
+  
+  const handleClick = (event: React.MouseEvent) => {
+    // Check if Shift key is pressed
+    if (event.shiftKey) {
+      // Set to null regardless of current state when Shift+Click
+      setState(null)
+      return
+    }
+    
+    // Normal click behavior
     if (state === DataAccessLevel.Full) {
       setState(null)
     } else if (state === undefined) {
@@ -54,7 +61,7 @@ const DatabaseDataAccessPicker: FunctionComponent<Props> = ({
       setState(state + 1)
     }
   }
-
+  
   switch (state) {
   case undefined:
     return (
