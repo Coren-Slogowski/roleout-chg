@@ -4,11 +4,10 @@ import {useTheme} from '@mui/material'
 import {styled} from '@mui/material/styles'
 import UnstyledTableCell, {tableCellClasses} from '@mui/material/TableCell'
 import {useAppDispatch} from '../../app/hooks'
-import {setSchemaAccess} from './databasesSlice'
+import {setDatabaseAccess} from './databasesSlice'
 
 type Props = {
   databaseName: string
-  schemaName: string
   functionalRoleName: string
   state?: DataAccessLevel
   environmentName?: string
@@ -27,29 +26,46 @@ const TableCell = styled(UnstyledTableCell)(({theme}) => ({
   },
 }))
 
-
-const DataAccessPicker: FunctionComponent<Props> = ({databaseName, schemaName, functionalRoleName, environmentName, state}) => {
+const DatabaseDataAccessPicker: FunctionComponent<Props> = ({
+  databaseName,
+  functionalRoleName,
+  environmentName,
+  state
+}) => {
   const dispatch = useAppDispatch()
   const theme = useTheme()
-
+  
   const setState = (newState: DataAccessLevel | null) => {
-    dispatch(setSchemaAccess({database: databaseName, schema: schemaName, role: functionalRoleName, level: newState, environment: environmentName}))
+    dispatch(setDatabaseAccess({
+      database: databaseName,
+      role: functionalRoleName,
+      level: newState,
+      environment: environmentName
+    }))
   }
-
-  const handleClick = () => {
-    if(state === DataAccessLevel.Full) {
+  
+  const handleClick = (event: React.MouseEvent) => {
+    // Check if Shift key is pressed
+    if (event.shiftKey) {
+      // Set to null regardless of current state when Shift+Click
       setState(null)
-    } else if(state === undefined) {
+      return
+    }
+    
+    // Normal click behavior
+    if (state === DataAccessLevel.Full) {
+      setState(null)
+    } else if (state === undefined) {
       setState(DataAccessLevel.Read)
     } else {
       setState(state + 1)
     }
   }
-
+  
   switch (state) {
   case undefined:
     return (
-      <TableCell onClick={handleClick} >
+      <TableCell onClick={handleClick}>
         &nbsp;
       </TableCell>
     )
@@ -74,4 +90,4 @@ const DataAccessPicker: FunctionComponent<Props> = ({databaseName, schemaName, f
   }
 }
 
-export default memo(DataAccessPicker)
+export default memo(DatabaseDataAccessPicker)
