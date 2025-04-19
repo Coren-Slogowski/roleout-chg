@@ -7,7 +7,7 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Paper from '@mui/material/Paper'
 import {styled} from '@mui/material/styles'
-import SchemaDataAccessPicker from '../../../features/databases/SchemaDataAccessPicker'
+import SchemaDataAccessPicker from '../../../features/databases/schemaDataAccessPicker'
 import {useAppSelector} from '../../hooks'
 import {max} from 'lodash'
 import Tabs from '@mui/material/Tabs'
@@ -64,6 +64,46 @@ const ProjectAccess = () => {
 
   const theme = useTheme()
 
+  interface NameCellProps {
+    solidBackground?: boolean
+  }
+  
+  const NameCell = styled(UnstyledTableCell, {
+    shouldForwardProp: (prop) => prop !== 'solidBackground',
+  })<NameCellProps>(({theme, solidBackground}) => ({
+    backgroundColor: solidBackground ? theme.palette.background.paper : 'transparent',
+    color: theme.palette.text.primary,
+    cursor: 'not-allowed',
+    position: 'sticky',
+    left: 0,
+    zIndex: 1,
+    borderRight: '1px solid',
+    borderRightColor: theme.palette.divider,
+    backgroundClip: 'padding-box',
+    '&.database-column': {
+      backgroundColor: 'black',
+      color: 'white',
+      fontWeight: 900,
+    },
+    '&.schema-name': {
+      backgroundColor: '#0f0f0f',
+      color: 'white',
+      fontWeight: 400,
+    }
+  }))
+  
+  // Create a styled component for name header cells
+  const NameHeaderCell = styled(UnstyledTableCell)(({theme}) => ({
+    backgroundColor: theme.palette.background.paper, // solid background
+    position: 'sticky',
+    left: 0,
+    top: 0,
+    zIndex: 3,
+    verticalAlign: 'bottom',
+    backgroundClip: 'padding-box', // prevent bleed
+  }))
+  
+  // Create a regular table cell component
   const TableCell = styled(UnstyledTableCell)(({theme}) => ({
     [`&.${tableCellClasses.head}`]: {
       backgroundColor: theme.palette.background.paper,
@@ -98,14 +138,18 @@ const ProjectAccess = () => {
       setMaxTableWidth(calculateMaxTableWidth(window.innerWidth))
     }
     window.addEventListener('resize', handleResize)
-  })
+    
+    return () => {
+      window.removeEventListener('resize', handleResize)
+    }
+  }, [])
 
   const dataAccessChildren = useMemo(() => {
     return databases.map(database => (
       <React.Fragment key={database.name}>
         <TableRow>
-          <TableCell>{database.name}</TableCell>
-          <TableCell></TableCell>
+          <NameCell className="database-column" solidBackground>{database.name}</NameCell>
+          <NameCell></NameCell>
           {functionalRoles.map((functionalRole, i) => (
             <DatabaseDataAccessPicker key={functionalRole.name} databaseName={database.name}
               functionalRoleName={functionalRole.name} environmentName={environment?.name}
@@ -115,8 +159,8 @@ const ProjectAccess = () => {
         {database.schemata.map((schema, i) => (
           <React.Fragment key={database.name + '.' + schema.name}>
             <TableRow>
-              {i === 0 && <TableCell rowSpan={database.schemata.length}></TableCell>}
-              <TableCell colSpan={1}>{schema.name}</TableCell>
+              {i === 0 && <NameCell rowSpan={database.schemata.length} className="database-column" solidBackground />}
+              <NameCell className="schema-name">{schema.name}</NameCell>
               {functionalRoles.map(functionalRole => (
                 <SchemaDataAccessPicker key={functionalRole.name} databaseName={database.name} schemaName={schema.name}
                   functionalRoleName={functionalRole.name} environmentName={environment?.name}
@@ -134,7 +178,7 @@ const ProjectAccess = () => {
     return schemaObjectGroups.map(schemaObjectGroup => (
       <React.Fragment key={schemaObjectGroup.name}>
         <TableRow>
-          <TableCell>{schemaObjectGroup.name}</TableCell>
+          <NameCell>{schemaObjectGroup.name}</NameCell>
 
           {functionalRoles.map(functionalRole => (
             <SchemaObjectGroupAccessPicker key={functionalRole.name} schemaObjectGroupName={schemaObjectGroup.name}
@@ -150,7 +194,7 @@ const ProjectAccess = () => {
     return virtualWarehouses.map(virtualWarehouse => (
       <React.Fragment key={virtualWarehouse.name}>
         <TableRow>
-          <TableCell>{virtualWarehouse.name}</TableCell>
+          <NameCell solidBackground>{virtualWarehouse.name}</NameCell>
 
           {functionalRoles.map(functionalRole => (
             <VirtualWarehouseAccessPicker key={functionalRole.name} virtualWarehouseName={virtualWarehouse.name}
@@ -224,13 +268,14 @@ const ProjectAccess = () => {
           backgroundColor: theme.palette.background.paper,
           minHeight: maxTableHeight,
           maxHeight: maxTableHeight,
-          pr: rotatedHeaderRightPaddingInCh + 'ch'
+          pr: rotatedHeaderRightPaddingInCh + 'ch',
+          overflow: 'auto'
         }}>
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell className="header"><h3>Database</h3></TableCell>
-                <TableCell className="header"><h3>Schema</h3></TableCell>
+                <NameHeaderCell className="header"><h3>Database</h3></NameHeaderCell>
+                <NameHeaderCell className="header"><h3>Schema</h3></NameHeaderCell>
                 {functionalRoles.map((fr, i) => (
                   <TableCell sx={{zIndex: functionalRoles.length - i}} key={fr.name} className="rotated">
                     <div><span className="nowrap">{fr.name}</span></div>
@@ -250,12 +295,13 @@ const ProjectAccess = () => {
             backgroundColor: theme.palette.background.paper,
             minHeight: maxTableHeight,
             maxHeight: maxTableHeight,
-            pr: rotatedHeaderRightPaddingInCh + 'ch'
+            pr: rotatedHeaderRightPaddingInCh + 'ch',
+            overflow: 'auto'
           }}>
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell className="header"><h3>Schema Object Group</h3></TableCell>
+                  <NameHeaderCell className="header"><h3>Schema Object Group</h3></NameHeaderCell>
                   {functionalRoles.map((fr, i) => (
                     <TableCell sx={{zIndex: functionalRoles.length - i}} key={fr.name} className="rotated">
                       <div><span className="nowrap">{fr.name}</span></div>
@@ -275,12 +321,13 @@ const ProjectAccess = () => {
           backgroundColor: theme.palette.background.paper,
           minHeight: maxTableHeight,
           maxHeight: maxTableHeight,
-          pr: rotatedHeaderRightPaddingInCh + 'ch'
+          pr: rotatedHeaderRightPaddingInCh + 'ch',
+          overflow: 'auto'
         }}>
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell className="header"><h3>Virtual Warehouse</h3></TableCell>
+                <NameHeaderCell className="header"><h3>Virtual Warehouse</h3></NameHeaderCell>
                 {functionalRoles.map((fr, i) => (
                   <TableCell sx={{zIndex: functionalRoles.length - i}} key={fr.name} className="rotated">
                     <div><span className="nowrap">{fr.name}</span></div>
