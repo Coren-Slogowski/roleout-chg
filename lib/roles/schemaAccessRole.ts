@@ -17,6 +17,7 @@ import {UserDefinedFunctionGrant} from '../grants/userDefinedFunctionGrant'
 import {TaskGrant} from '../grants/taskGrant'
 import {SequenceGrant} from '../grants/sequenceGrant'
 import {MaterializedViewGrant} from '../grants/materializedViewGrant'
+import {DynamicTableGrant} from '../grants/dynamicTableGrant';
 
 export class SchemaAccessRole implements AccessRole {
   schema: Schema
@@ -81,6 +82,8 @@ export class SchemaAccessRole implements AccessRole {
       new UserDefinedFunctionGrant(this.schema, true, Privilege.USAGE, this, undefined, [schemaOwnerGrant]),
       new MaterializedViewGrant(this.schema, false, Privilege.SELECT, this, undefined, [schemaOwnerGrant]),
       new MaterializedViewGrant(this.schema, true, Privilege.SELECT, this, undefined, [schemaOwnerGrant]),
+      new DynamicTableGrant(this.schema, false, Privilege.SELECT, this, undefined, [schemaOwnerGrant]),
+      new DynamicTableGrant(this.schema, true, Privilege.SELECT, this, undefined, [schemaOwnerGrant]),
     ]
 
     const readWriteGrants = () =>
@@ -99,6 +102,10 @@ export class SchemaAccessRole implements AccessRole {
         new TaskGrant(this.schema, false, Privilege.OPERATE, this, undefined, [schemaOwnerGrant]),
         new TaskGrant(this.schema, true, Privilege.MONITOR, this, undefined, [schemaOwnerGrant]),
         new TaskGrant(this.schema, true, Privilege.OPERATE, this, undefined, [schemaOwnerGrant]),
+        new DynamicTableGrant(this.schema, false, Privilege.OPERATE, this, undefined, [schemaOwnerGrant]),
+        new DynamicTableGrant(this.schema, false, Privilege.SELECT, this, undefined, [schemaOwnerGrant]),
+        new DynamicTableGrant(this.schema, true, Privilege.OPERATE, this, undefined, [schemaOwnerGrant]),
+        new DynamicTableGrant(this.schema, true, Privilege.SELECT, this, undefined, [schemaOwnerGrant]),
       ])
 
     const fullGrants = () => {
@@ -126,6 +133,11 @@ export class SchemaAccessRole implements AccessRole {
         new MaterializedViewGrant(this.schema, true, Privilege.OWNERSHIP, this, undefined, [schemaOwnerGrant]),
         new TaskGrant(this.schema, false, Privilege.OWNERSHIP, this, undefined, [schemaOwnerGrant]),
         new TaskGrant(this.schema, true, Privilege.OWNERSHIP, this, undefined, [schemaOwnerGrant]),
+        new SchemaGrant(this.schema, Privilege.CREATE_DYNAMIC_TABLE, this),
+        new DynamicTableGrant(this.schema, false, Privilege.SELECT, this, undefined, [schemaOwnerGrant]),
+        new DynamicTableGrant(this.schema, false, Privilege.OPERATE, this, undefined, [schemaOwnerGrant]),
+        new DynamicTableGrant(this.schema, true, Privilege.SELECT, this, undefined, [schemaOwnerGrant]),
+        new DynamicTableGrant(this.schema, true, Privilege.OPERATE, this, undefined, [schemaOwnerGrant]),
       ].concat(readWriteGrants())
     }
 
