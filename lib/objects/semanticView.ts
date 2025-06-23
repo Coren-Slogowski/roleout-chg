@@ -1,6 +1,6 @@
 import { Schema } from './schema'
 
-export class DynamicTable {
+export class SemanticView {
   name: string
   schema: Schema
 

@@ -18,6 +18,7 @@ import {TaskGrant} from '../grants/taskGrant'
 import {SequenceGrant} from '../grants/sequenceGrant'
 import {MaterializedViewGrant} from '../grants/materializedViewGrant'
 import {DynamicTableGrant} from '../grants/dynamicTableGrant'
+import {SemanticViewGrant} from '../grants/semanticViewGrant'
 
 export class SchemaAccessRole implements AccessRole {
   schema: Schema
@@ -86,6 +87,10 @@ export class SchemaAccessRole implements AccessRole {
       new DynamicTableGrant(this.schema, true, Privilege.SELECT, this, undefined, [schemaOwnerGrant]),
       new DynamicTableGrant(this.schema, false, Privilege.MONITOR, this, undefined, [schemaOwnerGrant]),
       new DynamicTableGrant(this.schema, true, Privilege.MONITOR, this, undefined, [schemaOwnerGrant]),
+      new SemanticViewGrant(this.schema, false, Privilege.SELECT, this, undefined, [schemaOwnerGrant]),
+      new SemanticViewGrant(this.schema, true, Privilege.SELECT, this, undefined, [schemaOwnerGrant]),
+      new SemanticViewGrant(this.schema, false, Privilege.REFERENCES, this, undefined, [schemaOwnerGrant]),
+      new SemanticViewGrant(this.schema, true, Privilege.REFERENCES, this, undefined, [schemaOwnerGrant]),
     ]
 
     const readWriteGrants = () =>
@@ -134,6 +139,8 @@ export class SchemaAccessRole implements AccessRole {
         new TaskGrant(this.schema, false, Privilege.OWNERSHIP, this, undefined, [schemaOwnerGrant]),
         new TaskGrant(this.schema, true, Privilege.OWNERSHIP, this, undefined, [schemaOwnerGrant]),
         new SchemaGrant(this.schema, Privilege.CREATE_DYNAMIC_TABLE, this),
+        new SemanticViewGrant(this.schema, false, Privilege.OWNERSHIP, this, undefined, [schemaOwnerGrant]),
+        new SemanticViewGrant(this.schema, true, Privilege.OWNERSHIP, this, undefined, [schemaOwnerGrant]),
       ].concat(readWriteGrants())
     }
 
