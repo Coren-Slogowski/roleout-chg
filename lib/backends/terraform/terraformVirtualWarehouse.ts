@@ -3,6 +3,7 @@ import {
   defaultVirtualWarehouseOptions,
   VirtualWarehouse,
   VirtualWarehouseOptions,
+  VirtualWarehouseResourceConstraint,
   VirtualWarehouseScalingPolicy,
   VirtualWarehouseSize, VirtualWarehouseType
 } from '../../objects/virtualWarehouse'
@@ -13,6 +14,7 @@ import standardizeIdentifierForResource from './standardizeIdentifierForResource
 export class TerraformVirtualWarehouse implements TerraformResource, VirtualWarehouseOptions {
   name: string
   size: VirtualWarehouseSize
+  resourceConstraint?: VirtualWarehouseResourceConstraint
   minClusterCount: number
   maxClusterCount: number
   scalingPolicy: VirtualWarehouseScalingPolicy
@@ -25,9 +27,10 @@ export class TerraformVirtualWarehouse implements TerraformResource, VirtualWare
   resourceMonitor?: string
   initiallySuspended: boolean
 
-  constructor(name: string, size: VirtualWarehouseSize, minClusterCount: number, maxClusterCount: number, scalingPolicy: VirtualWarehouseScalingPolicy, autoSuspend: number, autoResume: boolean, enableQueryAcceleration: boolean, queryAccelerationMaxScaleFactor: number | undefined, type: VirtualWarehouseType, statementTimeoutInSeconds: number | undefined, resourceMonitor: string | undefined, initiallySuspended: boolean) {
+  constructor(name: string, size: VirtualWarehouseSize, minClusterCount: number, maxClusterCount: number, scalingPolicy: VirtualWarehouseScalingPolicy, autoSuspend: number, autoResume: boolean, enableQueryAcceleration: boolean, queryAccelerationMaxScaleFactor: number | undefined, type: VirtualWarehouseType, statementTimeoutInSeconds: number | undefined, resourceMonitor: string | undefined, initiallySuspended: boolean, resourceConstraint: VirtualWarehouseResourceConstraint | undefined) {
     this.name = name
     this.size = size
+    this.resourceConstraint = resourceConstraint
     this.minClusterCount = minClusterCount
     this.maxClusterCount = maxClusterCount
     this.scalingPolicy = scalingPolicy
@@ -60,6 +63,7 @@ export class TerraformVirtualWarehouse implements TerraformResource, VirtualWare
       `resource ${this.resourceType()} ${this.resourceName()} {`,
       spacing + `name = "${this.name}"`,
       spacing + `warehouse_size = "${this.size}"`,
+      this.resourceConstraint ? spacing + `resource_constraint = "${this.resourceConstraint}"` : null,
       spacing + `max_cluster_count = ${this.maxClusterCount}`,
       spacing + `min_cluster_count = ${this.minClusterCount}`,
       this.maxClusterCount > this.minClusterCount ? spacing + `scaling_policy = "${this.scalingPolicy}"` : null,
@@ -89,7 +93,8 @@ export class TerraformVirtualWarehouse implements TerraformResource, VirtualWare
       virtualWarehouse.type,
       virtualWarehouse.statementTimeoutInSeconds,
       virtualWarehouse.resourceMonitor,
-      virtualWarehouse.initiallySuspended
+      virtualWarehouse.initiallySuspended,
+      virtualWarehouse.resourceConstraint
     )
   }
 }

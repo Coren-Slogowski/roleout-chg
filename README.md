@@ -14,6 +14,8 @@
 - [Terraform Deployment](#terraform-deployment)
 - [SQL Deployment](#sql-deployment)
 - [Development](#development)
+  - [Building the Project](#building-the-project)
+  - [Electron App](#electron-app)
 
 ## Legal
 
@@ -35,10 +37,9 @@ Download and run the `Roleout Setup x.x.x.exe` installer.
 Download the `Roleout x.x.x.dmg` disk image and open it, then drag Roleout into the Applications folder. Because Roleout
 is not code-signed, on macOS you will need to unquaratine the app before you can run it. Open a terminal and run
 the following:
-
-```shell
+`````shell
 sudo xattr -r -d com.apple.quarantine /Applications/Roleout.app
-```
+`````
 
 #### Linux
 
@@ -103,7 +104,7 @@ generate
 deployment code for these with the following properties:
 
 - Schemas will all be MANAGED ACCESS
-- Virtual warehouses are currently set to MEDIUM size and other parameters are left to the defaults
+- Virtual warehouses are currently set to X-Small size and other parameters are left to the defaults
 
 ### Schema Object Groups
 
@@ -161,13 +162,13 @@ into your Roleout project. To start a new Roleout project by loading those objec
 1) Setup your connection. roleout-cli will use the same environment variables for authentication as the Terraform provider,
   so follow [these Authentication instructions](https://registry.terraform.io/providers/Snowflake-Labs/snowflake/latest/docs#authentication)
   to export the appropriate environment variables. For example:
-  ```
+`````
 export SNOWFLAKE_USER="<your user>"
 export SNOWFLAKE_PRIVATE_KEY_PATH="<your private key path>"
 export SNOWFLAKE_ACCOUNT="<org-account>"
 export SNOWFLAKE_WAREHOUSE="<your warehouse>"
 export SNOWFLAKE_ROLE="ACCOUNTADMIN"
-```
+`````
 2) Run `roleout-cli snowflake populateProject -o 'Your New Project Name.yml'`
 
 You can also update an existing Roleout project with objects from your Snowflake account like so:
@@ -199,13 +200,12 @@ the [Snowflake Terraform provider](https://registry.terraform.io/providers/Snowf
 Specify your Snowflake connection properties via environment variables as shown in
 the [Snowflake provider documentation](https://registry.terraform.io/providers/Snowflake-Labs/snowflake/latest/docs)
 or edit the `snowflake.tf` file to include them. For example:
-
-```shell
+`````shell
 export SNOWFLAKE_USER="TERRAFORM"
 export SNOWFLAKE_PRIVATE_KEY_PATH="rsa_key.p8"
 export SNOWFLAKE_ACCOUNT="<your account name>"
 export SNOWFLAKE_WAREHOUSE="TERRAFORM_WH"
-```
+`````
 
 ## SQL Deployment
 
@@ -216,10 +216,8 @@ respective
 the `.ps1` scripts are for Windows.
 
 Example usages:
-
-```./deploy.sh -c my_snowsql_connection```
-
-```./teardown.ps1 -a ab12345.us-east-2.aws -u MY_USER```
+`````./deploy.sh -c my_snowsql_connection```
+````./teardown.ps1 -a ab12345.us-east-2.aws -u MY_USER```
 
 ### SQL Limitations
 
@@ -246,14 +244,86 @@ Example usages:
 3. Install requirements:
     1. `$ npm install`
 
+### Building the Project
+
+When you make changes to the library code or want to create production executables, follow these steps:
+
+#### Building the CLI Executable
+
+The CLI needs to be rebuilt whenever you make changes to the `lib` or `cli` code:
+```bash
+# 1. First, build the lib package (CLI depends on this)
+cd lib
+npm install
+npm run build
+cd ..
+
+# 2. Build the CLI TypeScript code
+cd cli
+npm install
+npx tsc -p .
+
+# 3. Install pkg globally (if you haven't already)
+npm install -g pkg
+
+# 4. Package the CLI as a Windows executable
+pkg . --targets node16-win-x64 --output bin/roleout-cli-win.exe
+
+# 5. The executable should now be at cli/bin/roleout-cli-win.exe
+```
+
+For other platforms, change the `--targets` flag:
+- macOS: `node16-macos-x64`
+- Linux: `node16-linux-x64`
+
+#### Building the Desktop App
+
+When you make changes to the `app` or `lib` code:
+```bash
+# 1. Build the lib package first
+cd lib
+npm install
+npm run build
+cd ..
+
+# 2. Build and package the app
+cd app
+npm install
+npm run package
+
+# 3. The installer will be at app/release/build/Roleout Setup <version>.exe
+```
+
+#### Backing Up Executables
+
+After building, copy the executables to the backup folder for safekeeping:
+```bash
+# Copy CLI executable
+cp cli/bin/roleout-cli-win.exe executables_backup/
+
+# Copy App installer
+cp "app/release/build/Roleout Setup 2.2.0.exe" executables_backup/
+```
+
+#### Updating Version Numbers
+
+When releasing a new version, update the version in these files:
+- `lib/version.ts`
+- `lib/package.json`
+- `cli/package.json`
+- `app/package.json`
+
+Then rebuild both the CLI and app to reflect the new version number in the executables.
+
 ### Electron App
 
 To run the Electron app in development, run `npm run start -w app`.
 
 To build executables for your local platform, run `npm run package -w app`.
 
+To build executables of the Electron app, run `npm exec electron-builder -w app`.
+
 To build executables of the Electron app for all platforms,
-run:
-
+run: 
 `npm exec electron-builder -w app -- --publish never --win --mac --linux`.
-
+````

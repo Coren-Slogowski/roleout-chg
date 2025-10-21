@@ -67,7 +67,8 @@ export class SnowflakeConnector {
         type: vwh['type'],
         statementTimeoutInSeconds: statementTimeoutInSeconds === 172800 ? undefined : statementTimeoutInSeconds,
         resourceMonitor: vwh['resource_monitor'] && vwh['resource_monitor'] != 'null' ? vwh['resource_monitor'] : undefined,
-        initiallySuspended: false
+        initiallySuspended: false,
+        resourceConstraint: vwh['resource_constraint'] || 'STANDARD_GEN_1'
       }
       return new VirtualWarehouse(vwh['name'], virtualWarehouseOptions)
     }))

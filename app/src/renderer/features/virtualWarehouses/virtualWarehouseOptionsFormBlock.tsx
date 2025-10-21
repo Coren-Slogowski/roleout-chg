@@ -9,8 +9,10 @@ import {
 } from '@mui/material'
 import {
   VirtualWarehouseOptions,
+  VirtualWarehouseResourceConstraint,  // Add this import
   VirtualWarehouseScalingPolicy,
-  VirtualWarehouseSize, VirtualWarehouseType
+  VirtualWarehouseSize, 
+  VirtualWarehouseType
 } from 'roleout-lib/build/objects/virtualWarehouse'
 import MenuItem from '@mui/material/MenuItem'
 import FormControl from '@mui/material/FormControl'
@@ -158,6 +160,12 @@ const VirtualWarehouseOptionsFormBlock: FunctionComponent<Props> = ({setOptions,
       draft.initiallySuspended = checked
     })
 
+  // Add this new handler for resource constraint
+  const handleChangeResourceConstraint = (e: SelectChangeEvent) =>
+    setOption(draft => {
+      draft.resourceConstraint = e.target.value as VirtualWarehouseResourceConstraint
+    })
+
   return (
     <Grid container gap={1}>
       <Grid item>
@@ -176,6 +184,26 @@ const VirtualWarehouseOptionsFormBlock: FunctionComponent<Props> = ({setOptions,
           <Select value={options.type} label="Type" onChange={handleChangeType}>
             <MenuItem value={'STANDARD'}>Standard</MenuItem>
             <MenuItem value={'SNOWPARK-OPTIMIZED'}>Snowpark Optimized</MenuItem>
+          </Select>
+        </FormControl>
+      </Grid>
+      {/* Add the Resource Constraint dropdown here */}
+      <Grid item>
+        <FormControl size="small" fullWidth sx={{minWidth: '16ch'}}>
+          <InputLabel>Resource Constraint</InputLabel>
+          <Select 
+            value={options.resourceConstraint || 'STANDARD_GEN_1'} 
+            label="Resource Constraint" 
+            onChange={handleChangeResourceConstraint}
+          >
+            <MenuItem value={'STANDARD_GEN_1'}>Standard Gen 1</MenuItem>
+            <MenuItem value={'STANDARD_GEN_2'}>Standard Gen 2</MenuItem>
+            <MenuItem value={'MEMORY_1X'}>Memory 1X</MenuItem>
+            <MenuItem value={'MEMORY_1X_x86'}>Memory 1X x86</MenuItem>
+            <MenuItem value={'MEMORY_16X'}>Memory 16X</MenuItem>
+            <MenuItem value={'MEMORY_16X_x86'}>Memory 16X x86</MenuItem>
+            <MenuItem value={'MEMORY_64X'}>Memory 64X</MenuItem>
+            <MenuItem value={'MEMORY_64X_x86'}>Memory 64X x86</MenuItem>
           </Select>
         </FormControl>
       </Grid>

@@ -6,7 +6,8 @@ import {
   parseVirtualWarehouseSize,
   VirtualWarehouse,
   VirtualWarehouseOptions,
-  VirtualWarehouseType
+  VirtualWarehouseType,
+  VirtualWarehouseResourceConstraint
 } from './objects/virtualWarehouse'
 import {FunctionalRole} from './roles/functionalRole'
 import {DataAccessLevel, parseDataAccessLevel} from './access/dataAccessLevel'
@@ -633,6 +634,7 @@ export class Project extends Deployable {
     const size = optionsMap.get('size') ? parseVirtualWarehouseSize(optionsMap.get('size') as string) : defaultVirtualWarehouseOptions.size
     return {
       size: size,
+      resourceConstraint: optionsMap.get('resourceConstraint') as VirtualWarehouseResourceConstraint | undefined ?? defaultVirtualWarehouseOptions.resourceConstraint,
       maxClusterCount: optionsMap.get('maxClusterCount') as number | undefined ?? defaultVirtualWarehouseOptions.maxClusterCount,
       minClusterCount: optionsMap.get('minClusterCount') as number | undefined ?? defaultVirtualWarehouseOptions.minClusterCount,
       scalingPolicy: optionsMap.get('scalingPolicy') as 'STANDARD' | 'ECONOMY' | undefined ?? defaultVirtualWarehouseOptions.scalingPolicy,

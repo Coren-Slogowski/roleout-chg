@@ -6,6 +6,16 @@ import {FunctionalRole} from '../roles/functionalRole'
 
 export type VirtualWarehouseType = 'STANDARD' | 'SNOWPARK-OPTIMIZED'
 
+export type VirtualWarehouseResourceConstraint = 
+  | 'STANDARD_GEN_1' 
+  | 'STANDARD_GEN_2' 
+  | 'MEMORY_1X' 
+  | 'MEMORY_1X_x86' 
+  | 'MEMORY_16X' 
+  | 'MEMORY_16X_x86' 
+  | 'MEMORY_64X' 
+  | 'MEMORY_64X_x86'
+
 export enum VirtualWarehouseSize {
   XSMALL = 'X-Small',
   SMALL = 'Small',
@@ -95,6 +105,7 @@ export type VirtualWarehouseScalingPolicy = 'STANDARD' | 'ECONOMY'
 
 export interface VirtualWarehouseOptions {
   size: VirtualWarehouseSize
+  resourceConstraint?: VirtualWarehouseResourceConstraint
   minClusterCount: number
   maxClusterCount: number
   autoSuspend: number
@@ -109,10 +120,11 @@ export interface VirtualWarehouseOptions {
 }
 
 export const defaultVirtualWarehouseOptions: VirtualWarehouseOptions = {
-  size: VirtualWarehouseSize.MEDIUM,
+  size: VirtualWarehouseSize.XSMALL,
+  resourceConstraint: 'STANDARD_GEN_1',
   minClusterCount: 1,
   maxClusterCount: 1,
-  autoSuspend: 10,
+  autoSuspend: 1,
   autoResume: true,
   scalingPolicy: 'STANDARD',
   enableQueryAcceleration: false,
@@ -125,6 +137,7 @@ export const defaultVirtualWarehouseOptions: VirtualWarehouseOptions = {
 export class VirtualWarehouse implements VirtualWarehouseOptions {
   name: string
   size: VirtualWarehouseSize
+  resourceConstraint?: VirtualWarehouseResourceConstraint
   minClusterCount: number
   maxClusterCount: number
   scalingPolicy: VirtualWarehouseScalingPolicy
@@ -141,6 +154,7 @@ export class VirtualWarehouse implements VirtualWarehouseOptions {
   constructor(name: string, options: VirtualWarehouseOptions = defaultVirtualWarehouseOptions) {
     this.name = name
     this.size = options.size
+    this.resourceConstraint = options.resourceConstraint
     this.minClusterCount = options.minClusterCount
     this.maxClusterCount = options.maxClusterCount
     this.scalingPolicy = options.scalingPolicy
@@ -175,6 +189,7 @@ export class VirtualWarehouse implements VirtualWarehouseOptions {
       name: this.name,
       options: {
         size: this.size,
+        resourceConstraint: this.resourceConstraint,
         minClusterCount: this.minClusterCount,
         maxClusterCount: this.maxClusterCount,
         scalingPolicy: this.scalingPolicy,

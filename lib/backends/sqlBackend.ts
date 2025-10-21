@@ -176,6 +176,7 @@ Foreach-Object {
               `ALTER WAREHOUSE "${vwh.name}" SET`,
               'WAIT_FOR_COMPLETION = TRUE',
               `WAREHOUSE_SIZE = ${virtualWarehouseSizeSQLIdentifier(vwh.size)}`,
+              vwh.resourceConstraint ? `RESOURCE_CONSTRAINT = ${vwh.resourceConstraint}` : null,
               `MIN_CLUSTER_COUNT = ${vwh.minClusterCount}`,
               `MAX_CLUSTER_COUNT = ${vwh.maxClusterCount}`,
               vwh.maxClusterCount > vwh.minClusterCount ? `SCALING_POLICY = ${vwh.scalingPolicy}` : null,
